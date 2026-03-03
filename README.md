@@ -4,3 +4,4 @@ This repository houses my solutions for the Advent of Code challenges. Each year
 
 - **2022**: Clojure
 - **2024**: Go
+- **2025**: Ruby
