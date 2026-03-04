@@ -13,6 +13,8 @@ end
 
 # PROBLEM 1
 
+timer_start = Time.now
+
 $invalid_ids_count = 0
 
 $id_ranges.each do |id_range|
@@ -30,8 +32,39 @@ $id_ranges.each do |id_range|
   end
 end
 
-puts "Problem 1 Result: #{$invalid_ids_count}" # 16793817782
+puts "Problem 1 Result: #{$invalid_ids_count} ● #{"%.1f" % (Time.now - timer_start)}s" # 16793817782
 
 # PROBLEM 2
 
-# puts "Problem 2 Result: #{$dial_pass_by_zero_count}" # 6623
+timer_start = Time.now
+
+$invalid_ids_count = 0
+
+$id_ranges.each do |id_range|
+  left, right = id_range
+
+  (left..right).each do |n|
+    n_str = n.to_s
+    decimals = n_str.length
+    half_decimals = decimals / 2
+
+    (1..half_decimals).each do |repeat_len|
+      next if decimals % repeat_len != 0
+
+      repetitions = decimals / repeat_len
+
+      is_invalid = (1...repetitions).all? do |repetition_index|
+        offset = repetition_index * repeat_len
+        (0...repeat_len).all? {|i| n_str[i] == n_str[i + offset]}
+      end
+
+      if is_invalid
+        # puts "+ #{n}" if is_invalid
+        $invalid_ids_count += n
+        break
+      end
+    end
+  end
+end
+
+puts "Problem 1 Result: #{$invalid_ids_count} ● #{"%.1f" % (Time.now - timer_start)}s" # ??
