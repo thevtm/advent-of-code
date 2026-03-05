@@ -32,7 +32,7 @@ $id_ranges.each do |id_range|
   end
 end
 
-puts "Problem 1 Result: #{$invalid_ids_count} ● #{"%.1f" % (Time.now - timer_start)}s" # 16793817782
+puts "Problem 1 Result: #{$invalid_ids_count} ● #{"%.1f" % (Time.now - timer_start)}s" # 16793817782 ● 8.6s
 
 # PROBLEM 2
 
@@ -67,4 +67,4 @@ $id_ranges.each do |id_range|
   end
 end
 
-puts "Problem 1 Result: #{$invalid_ids_count} ● #{"%.1f" % (Time.now - timer_start)}s" # ??
+puts "Problem 1 Result: #{$invalid_ids_count} ● #{"%.1f" % (Time.now - timer_start)}s" # 27469417404 ● 7.8s
