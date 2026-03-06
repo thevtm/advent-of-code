@@ -1,7 +1,7 @@
 # INPUTS
 
 $input_path = "./input.txt"
-$input_path = "./input-sample.txt"
+# $input_path = "./input-sample.txt"
 
 $file_content = File.read(File.join(__dir__, $input_path))
 $file_lines = $file_content.lines(chomp: true)
@@ -29,20 +29,23 @@ puts "Problem 1 Result: #{$joltages_sum} ● #{"%.1f" % (Time.now - timer_start)
 
 # PROBLEM 2
 
-# timer_start = Time.now
+timer_start = Time.now
 
-# $selected_batteries = $file_lines.map do |batteries|
-#   batteries
-#     .split("")
-#     .each_with_index
-#     .sort_by {|x, i| [-x.to_i, i]}
-#     .first(12)
-#     .sort_by {|x, i| i}
-#     .map {|x| x}
-# end
+$selected_batteries = $file_lines.map do |batteries|
+  left = 0
 
-# # $joltages_sum = $selected_batteries.sum do |bs|
-# #   bs.each_with_index.map {|x, i| x.to_i * (10 ** (11 - i))}.sum
-# # end
+  12.downto(1).map do |n|
+    right = batteries.length - n
+    battery, index = batteries[left..right].chars.each_with_index.max_by {|b, _| b}
+    left = left + index + 1
+    battery
+  end
+end
 
-# puts "Problem 2 Result: #{$joltages_sum} ● #{"%.1f" % (Time.now - timer_start)}s" # ??
+$joltages = $selected_batteries.map do |bs|
+  bs.each_with_index.map {|x, i| x[0].to_i * (10 ** (11 - i))}.sum
+end
+
+$joltages_sum = $joltages.sum
+
+puts "Problem 2 Result: #{$joltages_sum} ● #{"%.1f" % (Time.now - timer_start)}s" # 172740584266849 ● 0.0s
