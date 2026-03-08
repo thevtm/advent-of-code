@@ -1,6 +1,6 @@
 # INPUTS
 
-$input_path = "./input.txt"
+$input_path = './input.txt'
 # $input_path = "./input-sample.txt"
 
 $file_content = File.read(File.join(__dir__, $input_path))
@@ -11,7 +11,7 @@ $file_lines = $file_content.lines(chomp: true)
 $dial = 50
 
 $rotations = $file_lines.map do |n|
-  n[1..].to_i * (n[0] === "L" ? -1 : 1)
+  n[1..].to_i * (n[0] === 'L' ? -1 : 1)
 end
 
 $dial_positions = $rotations.map do |r|
@@ -30,7 +30,7 @@ $dial_pass_by_zero_count = 0
 
 $rotations.each do |r|
   (1..r.abs).each do
-    $dial = ($dial + (r > 0 ? 1 : -1)) % 100
+    $dial = ($dial + (r.positive? ? 1 : -1)) % 100
     $dial_pass_by_zero_count += 1 if $dial == 0
   end
 end
