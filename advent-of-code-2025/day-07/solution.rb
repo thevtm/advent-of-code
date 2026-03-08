@@ -43,14 +43,14 @@ puts "Problem 1 Result: #{$beam_split_count} ● #{format('%.1f', Time.now - tim
 timer_start = Time.now
 
 $map = $file_lines
-$S_col = $file_lines[0].index("S")
+$S_col = $file_lines[0].index('S')
 
 $queue = [[1, $S_col, 1]]
 
 $timelines_count = 0
 
 def upsert_beam(row, col, count)
-  queue_element_index = $queue.index {|(r, c)| row == r && col == c}
+  queue_element_index = $queue.index { |(r, c)| row == r && col == c }
 
   if queue_element_index.nil?
     $queue.push([row, col, count])
@@ -62,7 +62,7 @@ end
 until $queue.empty?
   row, col, count = $queue.shift
 
-  next if col < 0 || col >= $cols
+  next if col.negative? || col >= $cols
 
   if row >= $rows
     $timelines_count += count
@@ -71,9 +71,9 @@ until $queue.empty?
 
   cell = $map[row][col]
 
-  if cell == "."
+  if cell == '.'
     upsert_beam(row + 1, col, count)
-  elsif cell == "^"
+  elsif cell == '^'
     upsert_beam(row + 1, col - 1, count)
     upsert_beam(row + 1, col + 1, count)
   end
