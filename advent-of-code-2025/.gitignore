@@ -1,7 +1,6 @@
 # Bundler
 .bundle/
 vendor/bundle/
-Gemfile.lock
 
 # IRB history
 .irb_history
