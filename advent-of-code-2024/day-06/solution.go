@@ -153,60 +153,42 @@ OuterLoop:
 
 	// PROBLEM 2
 
-	next_pos := func(step Step) (int, int) {
-		if step.direction == '^' {
-			return step.x + 0, step.y - 1
-		} else if step.direction == '>' {
-			return step.x + 1, step.y + 0
-		} else if step.direction == 'v' {
-			return step.x + 0, step.y + 1
-		} else if step.direction == '<' {
-			return step.x - 1, step.y + 0
+	set_cell := func(x int, y int, val rune) {
+		if x < 0 || x >= matrix_width || y < 0 || y >= matrix_height {
+			panic("Outside")
 		}
 
-		panic("Unreachable!")
+		matrix[y][x] = val
 	}
 
-	possible_obstacle_positions := 0
+	possible_obstacle_positions_set := make(map[int]bool)
 
-	path := make(map[Step]bool)
+	starting_step := Step{start_x, start_y, start_direction}
 
-	for step := (Step{start_x, start_y, start_direction}); step != outside_step; step = next_step(step) {
-		path[step] = true
-
-		alternative_path := make(map[Step]bool)
-		alternative_step := Step{step.x, step.y, next_direction(step.direction)}
-
-		obstacle_pos_x, obstacle_pos_y := next_pos(step)
-
-		if obstacle_pos_x < 0 || obstacle_pos_x >= matrix_width || obstacle_pos_y < 0 || obstacle_pos_y >= matrix_height {
+	for step := starting_step; step != outside_step; step = next_step(step) {
+		if get_cell(step.x, step.y) == '^' {
 			continue
 		}
 
-		if matrix[obstacle_pos_y][obstacle_pos_x] == '#' {
-			continue
-		}
+		// Block
+		set_cell(step.x, step.y, '#')
 
-		obstacle_position_value := matrix[obstacle_pos_y][obstacle_pos_x]
-		matrix[obstacle_pos_y][obstacle_pos_x] = '#'
+		path := make(map[Step]bool)
 
-		for {
-			if path[alternative_step] || alternative_path[alternative_step] {
-				possible_obstacle_positions++
+		for alt_step := starting_step; alt_step != outside_step; alt_step = next_step(alt_step) {
+			if path[alt_step] == true {
+				possible_obstacle_positions_set[pos_to_key(step.x, step.y)] = true
+				fmt.Println("found", step)
 				break
 			}
 
-			if alternative_step == outside_step {
-				break
-			}
-
-			alternative_path[alternative_step] = true
-			alternative_step = next_step(alternative_step)
+			path[alt_step] = true
 		}
 
-		matrix[obstacle_pos_y][obstacle_pos_x] = obstacle_position_value
+		// Unblock
+		set_cell(step.x, step.y, '.')
 	}
 	fmt.Println()
 
-	fmt.Println("Problem 2 Result:", possible_obstacle_positions) // 1729
+	fmt.Println("Problem 2 Result:", len(possible_obstacle_positions_set)) // 1530
 }
