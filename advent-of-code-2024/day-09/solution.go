@@ -95,4 +95,76 @@ func main() {
 	fmt.Println("--------------------------------------------------------------------------------")
 	fmt.Println()
 
+	start = time.Now()
+
+	index = 0
+	left_block_index = 0
+	last_file_block_index := len(disk) - ((len(disk) - 1) % 2) - 1
+
+	disk_used = make([]int, len(disk))
+	copy(disk_used, disk)
+
+	checksum = int64(0)
+
+	for left_block_index <= last_file_block_index {
+		is_empty_sector := (left_block_index % 2) == 1
+
+		if disk_used[left_block_index] < 0 {
+			fmt.Println(">", index, "skip", -disk_used[left_block_index])
+			index += -disk_used[left_block_index]
+			left_block_index++
+			continue
+		}
+
+		if is_empty_sector {
+			empty_block_size := disk_used[left_block_index]
+			right_file_block_index := last_file_block_index
+
+			for right_file_block_index > left_block_index &&
+				(disk_used[right_file_block_index] < 0 || disk_used[right_file_block_index] > empty_block_size) {
+				right_file_block_index -= 2
+			}
+
+			no_file_found := right_file_block_index <= left_block_index
+
+			// fmt.Println("no_file_found", no_file_found, "right_file_block_index", right_file_block_index)
+
+			if no_file_found {
+				fmt.Println(">", index, "no_file_found")
+				left_block_index++
+				index += empty_block_size
+			} else {
+				file_id := right_file_block_index / 2
+				file_size := disk_used[right_file_block_index]
+
+				fmt.Println(">", index, "file_id", file_id, "file_size", file_size)
+
+				for i := 0; i < file_size; i++ {
+					checksum += int64(index * file_id)
+					index++
+				}
+
+				disk_used[left_block_index] = empty_block_size - file_size
+				disk_used[right_file_block_index] = -file_size
+
+				if disk_used[left_block_index] == 0 {
+					left_block_index++
+				}
+			}
+		} else {
+			file_id := left_block_index / 2
+			file_size := disk_used[left_block_index]
+
+			fmt.Println(">", index, "file_id", file_id, "file_size", file_size)
+
+			for i := 0; i < file_size; i++ {
+				checksum += int64(index * file_id)
+				index++
+			}
+
+			left_block_index++
+		}
+	}
+
+	fmt.Println("Problem 2 Result:", checksum, "●", time.Since(start)) // 6421724645083 ● 60.769ms
 }
