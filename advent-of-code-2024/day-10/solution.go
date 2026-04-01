@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/samber/lo"
 )
@@ -22,7 +23,7 @@ func main() {
 	// INPUTS
 
 	input_path := "./input.txt"
-	// input_path := "./input-sample.txt"
+	// input_path = "./input-sample.txt"
 
 	_, source_file_path, _, _ := runtime.Caller(0)
 	source_dir := filepath.Dir(source_file_path)
@@ -70,6 +71,8 @@ func main() {
 
 	// PROBLEM 1
 
+	start := time.Now()
+
 	get_height := func(position Position) int { return height_map[position.y][position.x] }
 	is_in_bounds := func(pos Position) bool {
 		if pos.x < 0 || pos.x >= height_map_width || pos.y < 0 || pos.y >= height_map_height {
@@ -102,7 +105,7 @@ func main() {
 
 			if get_height(position) == 9 {
 				score++
-				fmt.Println("score++", starting_position, "->", position)
+				// fmt.Println("score++", starting_position, "->", position)
 				continue
 			}
 
@@ -124,5 +127,61 @@ func main() {
 		}
 	}
 
-	fmt.Println("Problem 1 Result:", score) // 746
+	fmt.Println("Problem 1 Result:", score, "●", time.Since(start)) // 746 ● 496.96µs
+
+	fmt.Println()
+	fmt.Println("--------------------------------------------------------------------------------")
+	fmt.Println()
+
+	// PROBLEM 2
+
+	start = time.Now()
+
+	score = 0
+
+	for _, starting_position := range starting_positions {
+		stack := make([]Position, 1)
+		stack[0] = starting_position
+
+		visited_positions := make(map[Position]bool)
+
+		var backtrack func(pos Position) int
+		backtrack = func(pos Position) int {
+			if get_height(pos) == 9 {
+				return 1
+			}
+
+			visited_positions[pos] = true
+
+			count := 0
+
+			directions := []Position{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
+
+			for _, direction := range directions {
+				new_pos := pos.plus(direction)
+
+				if !is_in_bounds(new_pos) {
+					continue
+				}
+
+				if !can_traverse(pos, new_pos) {
+					continue
+				}
+
+				if visited_positions[new_pos] {
+					continue
+				}
+
+				count += backtrack(new_pos)
+			}
+
+			visited_positions[pos] = false
+
+			return count
+		}
+
+		score += backtrack(starting_position)
+	}
+
+	fmt.Println("Problem 2 Result:", score, "●", time.Since(start)) // 1541 ● 964.135µs
 }
