@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
+	"time"
 
 	"github.com/samber/lo"
 )
@@ -49,6 +50,8 @@ func main() {
 
 	// PROBLEM 1
 
+	start := time.Now()
+
 	stones_map := make(map[int]int)
 
 	for _, stone := range stones {
@@ -85,7 +88,7 @@ func main() {
 			new_stones_map[stone*2024] += count
 		}
 
-		fmt.Println("blink", blink, len(new_stones_map), new_stones_map)
+		fmt.Println("blink", blink, len(new_stones_map))
 
 		stones_map = new_stones_map
 	}
@@ -96,5 +99,64 @@ func main() {
 		stone_count += count
 	}
 
-	fmt.Println("Problem 1 Result:", stone_count) // 198075
+	fmt.Println()
+
+	fmt.Println("Problem 1 Result:", stone_count, "●", time.Since(start)) // 198075 ● 644.704µs
+
+	fmt.Println()
+	fmt.Println("--------------------------------------------------------------------------------")
+	fmt.Println()
+
+	start = time.Now()
+
+	stones_map = make(map[int]int)
+
+	for _, stone := range stones {
+		stones_map[stone] += 1
+	}
+
+	for blink := range 75 {
+		new_stones_map := make(map[int]int)
+
+		for stone, count := range stones_map {
+
+			// 0 becomes 1
+			if stone == 0 {
+				new_stones_map[1] += count
+				continue
+			}
+
+			// Split if even number of digits
+			stone_str := fmt.Sprintf("%d", stone)
+			stone_str_len := len(stone_str)
+
+			if stone_str_len%2 == 0 {
+				half_point := stone_str_len / 2
+				left_stone := lo.Must(strconv.Atoi(stone_str[:half_point]))
+				right_stone := lo.Must(strconv.Atoi(stone_str[half_point:]))
+
+				new_stones_map[left_stone] += count
+				new_stones_map[right_stone] += count
+
+				continue
+			}
+
+			// Multiply by 2024
+			new_stones_map[stone*2024] += count
+		}
+
+		fmt.Println("blink", blink, len(new_stones_map))
+
+		stones_map = new_stones_map
+	}
+
+	stone_count = 0
+
+	for _, count := range stones_map {
+		stone_count += count
+	}
+
+	fmt.Println()
+
+	fmt.Println("Problem 2 Result:", stone_count, "●", time.Since(start)) // 235571309320764 ● 28.152274ms
 }
