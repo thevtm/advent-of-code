@@ -7,9 +7,15 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/samber/lo"
 )
+
+type Point2D struct {
+	x, y int
+}
 
 type Robot struct {
 	x, y   int
@@ -23,9 +29,9 @@ func main() {
 	height := 103
 	input_path := "./input.txt"
 
-	// width := 11
-	// height := 7
-	// input_path := "./input-sample.txt"
+	// width = 11
+	// height = 7
+	// input_path = "./input-sample.txt"
 
 	_, source_file_path, _, _ := runtime.Caller(0)
 	source_dir := filepath.Dir(source_file_path)
@@ -65,22 +71,26 @@ func main() {
 
 	// PROBLEM 1
 
-	// tokens := 0
+	start := time.Now()
+
 	seconds := 100
 
-	for i := range len(robots) {
-		robot := &robots[i]
+	robots_after_100s := make([]Robot, len(robots))
+	copy(robots_after_100s, robots)
+
+	for i := range robots_after_100s {
+		robot := &robots_after_100s[i]
 		robot.x = (robot.x + (robot.vx * seconds) + (width * seconds)) % width
 		robot.y = (robot.y + (robot.vy * seconds) + (height * seconds)) % height
 	}
 	fmt.Println()
 
-	fmt.Println(robots)
+	fmt.Println(robots_after_100s)
 	fmt.Println()
 
 	quadrants := []int{0, 0, 0, 0}
 
-	for _, robot := range robots {
+	for _, robot := range robots_after_100s {
 		is_left := robot.x < mid_width
 		is_right := robot.x > mid_width
 		is_top := robot.y < mid_height
@@ -109,5 +119,48 @@ func main() {
 	fmt.Println("quadrants", quadrants, "safety_factor", safety_factor)
 	fmt.Println()
 
-	fmt.Println("Problem 1 Result:", safety_factor) // 226236192
+	fmt.Println("Problem 1 Result:", safety_factor, "●", time.Since(start)) // 226236192 ● 6.105576ms
+
+	fmt.Println()
+	fmt.Println("--------------------------------------------------------------------------------")
+	fmt.Println()
+
+	// PROBLEM 2
+
+	start = time.Now()
+
+	seconds_to_tree := 0
+
+	for i := 0; i < 100000; i++ {
+		robots_position_map := make(map[Point2D]bool, len(robots))
+
+		for _, robot := range robots {
+			x := (robot.x + (robot.vx * i) + (width * i)) % width
+			y := (robot.y + (robot.vy * i) + (height * i)) % height
+			robots_position_map[Point2D{x, y}] = true
+		}
+
+		if len(robots) != len(robots_position_map) {
+			continue
+		}
+
+		for y := 0; y < height; y++ {
+			line := []rune(strings.Repeat(".", width))
+
+			for x := 0; x < width; x++ {
+				if (robots_position_map[Point2D{x, y}]) {
+					line[x] = '@'
+				}
+			}
+
+			fmt.Println(string(line))
+		}
+
+		seconds_to_tree = i
+		break
+	}
+
+	fmt.Println()
+
+	fmt.Println("Problem 2 Result:", seconds_to_tree, "●", time.Since(start)) // 8168 ● 145.879752ms
 }
